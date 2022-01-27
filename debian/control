@@ -6,7 +6,7 @@ XSBC-Original-Maintainer: Laszlo Boszormenyi (GCS) <gcs@debian.org>
 Standards-Version: 4.5.0
 Build-Depends: debhelper-compat (= 12), pkg-config, python3-distutils
 Build-Depends-Indep: doxygen (>= 1.7.1)
-Build-Conflicts: clang
+#Build-Conflicts: clang
 Homepage: http://www.icu-project.org
 
 Package: libicu66
