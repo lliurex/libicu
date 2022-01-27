@@ -256,7 +256,7 @@ UOBJECT_DEFINE_RTTI_IMPLEMENTATION(Locale)
 
 Locale::~Locale()
 {
-    if ((baseName != fullName) && (baseName != fullNameBuffer)) {
+    if (baseName != fullName) {
         uprv_free(baseName);
     }
     baseName = NULL;
@@ -468,21 +468,17 @@ Locale& Locale::operator=(const Locale& other) {
 }
 
 Locale& Locale::operator=(Locale&& other) U_NOEXCEPT {
-    if ((baseName != fullName) && (baseName != fullNameBuffer)) uprv_free(baseName);
+    if (baseName != fullName) uprv_free(baseName);
     if (fullName != fullNameBuffer) uprv_free(fullName);
 
-    if (other.fullName == other.fullNameBuffer || other.baseName == other.fullNameBuffer) {
-        uprv_strcpy(fullNameBuffer, other.fullNameBuffer);
-    }
     if (other.fullName == other.fullNameBuffer) {
+        uprv_strcpy(fullNameBuffer, other.fullNameBuffer);
         fullName = fullNameBuffer;
     } else {
         fullName = other.fullName;
     }
 
-    if (other.baseName == other.fullNameBuffer) {
-        baseName = fullNameBuffer;
-    } else if (other.baseName == other.fullName) {
+    if (other.baseName == other.fullName) {
         baseName = fullName;
     } else {
         baseName = other.baseName;
@@ -518,7 +514,7 @@ Locale& Locale::init(const char* localeID, UBool canonicalize)
 {
     fIsBogus = FALSE;
     /* Free our current storage */
-    if ((baseName != fullName) && (baseName != fullNameBuffer)) {
+    if (baseName != fullName) {
         uprv_free(baseName);
     }
     baseName = NULL;
@@ -554,7 +550,6 @@ Locale& Locale::init(const char* localeID, UBool canonicalize)
             uloc_getName(localeID, fullName, sizeof(fullNameBuffer), &err);
 
         if(err == U_BUFFER_OVERFLOW_ERROR || length >= (int32_t)sizeof(fullNameBuffer)) {
-            U_ASSERT(baseName == nullptr);
             /*Go to heap for the fullName if necessary*/
             fullName = (char *)uprv_malloc(sizeof(char)*(length + 1));
             if(fullName == 0) {
@@ -693,7 +688,7 @@ Locale::hashCode() const
 void
 Locale::setToBogus() {
     /* Free our current storage */
-    if((baseName != fullName) && (baseName != fullNameBuffer)) {
+    if(baseName != fullName) {
         uprv_free(baseName);
     }
     baseName = NULL;
@@ -1363,9 +1358,6 @@ Locale::setKeywordValue(const char* keywordName, const char* keywordValue, UErro
         if (fullName != fullNameBuffer) {
             // if full Name is already on the heap, need to free it.
             uprv_free(fullName);
-            if (baseName == fullName) {
-                baseName = newFullName; // baseName should not point to freed memory.
-            }
         }
         fullName = newFullName;
         status = U_ZERO_ERROR;

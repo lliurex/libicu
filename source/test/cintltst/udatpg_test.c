@@ -45,7 +45,7 @@ static void TestOptions(void);
 static void TestGetFieldDisplayNames(void);
 
 void addDateTimePatternGeneratorTest(TestNode** root) {
-    /* TESTCASE(TestOpenClose); */
+    TESTCASE(TestOpenClose);
     TESTCASE(TestUsage);
     TESTCASE(TestBuilder);
     TESTCASE(TestOptions);

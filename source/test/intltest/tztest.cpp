@@ -152,13 +152,10 @@ TimeZoneTest::TestGenericAPI()
     const char* tzver = TimeZone::getTZDataVersion(status);
     if (U_FAILURE(status)) {
         errcheckln(status, "FAIL: getTZDataVersion failed - %s", u_errorName(status));
+    } else if (uprv_strlen(tzver) != 5 /* 4 digits + 1 letter */) {
+        errln((UnicodeString)"FAIL: getTZDataVersion returned " + tzver);
     } else {
-        int32_t tzverLen = uprv_strlen(tzver);
-        if (tzverLen == 5 || tzverLen == 6 /* 4 digits + 1 or 2 letters */) {
-            logln((UnicodeString)"tzdata version: " + tzver);
-        } else {
-            errln((UnicodeString)"FAIL: getTZDataVersion returned " + tzver);
-        }
+        logln((UnicodeString)"tzdata version: " + tzver);
     }
 }
 
@@ -1221,10 +1218,7 @@ TimeZoneTest::TestAliasedNames()
         {"America/Argentina/Cordoba", "America/Cordoba"},
         {"America/Argentina/Jujuy", "America/Jujuy"},
         {"America/Argentina/Mendoza", "America/Mendoza"},
-        // Skipping these IDs due to failures
-        // in TestAliasedNames caused by tzdata version
-        // mismatch with the test data
-        //{"America/Atikokan", "America/Coral_Harbour"},
+        {"America/Atikokan", "America/Coral_Harbour"},
         {"America/Atka", "America/Adak"},
         {"America/Ensenada", "America/Tijuana"},
         {"America/Fort_Wayne", "America/Indianapolis"},
@@ -2080,8 +2074,6 @@ void TimeZoneTest::TestCanonicalID() {
         {"Asia/Vientiane", "Asia/Bangkok"},
         {"Atlantic/Jan_Mayen", "Europe/Oslo"},
         {"Atlantic/St_Helena", "Africa/Abidjan"},
-        {"Australia/Currie", "Australia/Hobart"},
-        {"Australia/Tasmania", "Australia/Hobart"},
         {"Europe/Bratislava", "Europe/Prague"},
         {"Europe/Busingen", "Europe/Zurich"},
         {"Europe/Guernsey", "Europe/London"},
@@ -2119,16 +2111,6 @@ void TimeZoneTest::TestCanonicalID() {
         "Etc/Zulu", "Zulu", 0
     };
 
-    // Manually skipping these IDs due to failures
-    // in TestCanonicalID caused by tzdata version
-    // mismatch with the test data
-    static const char* excluded3[] = {
-        "America/Cayman",
-        "America/Coral_Harbour",
-        "America/Panama",
-        0
-    };
-
     // Walk through equivalency groups
     UErrorCode ec = U_ZERO_ERROR;
     int32_t s_length, i, j, k;
@@ -2141,18 +2123,6 @@ void TimeZoneTest::TestCanonicalID() {
     s_length = s->count(ec);
     for (i = 0; i < s_length;++i) {
         const UnicodeString *tzid = s->snext(ec);
-
-        UBool isSkip = FALSE;
-        for (j = 0; excluded3[j] != 0; j++) {
-            if (*tzid == UnicodeString(excluded3[j])) {
-                isSkip = TRUE;
-                break;
-            }
-        }
-        if (isSkip) {
-            continue;
-        }
-
         int32_t nEquiv = TimeZone::countEquivalentIDs(*tzid);
         if (nEquiv == 0) {
             continue;

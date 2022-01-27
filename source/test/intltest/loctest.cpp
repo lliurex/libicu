@@ -273,8 +273,6 @@ void LocaleTest::runIndexedTest( int32_t index, UBool exec, const char* &name, c
     TESTCASE_AUTO(TestCapturingTagConvertingIterator);
     TESTCASE_AUTO(TestSetUnicodeKeywordValueInLongLocale);
     TESTCASE_AUTO(TestSetUnicodeKeywordValueNullInLongLocale);
-    TESTCASE_AUTO(TestLongLocaleSetKeywordAssign);
-    TESTCASE_AUTO(TestLongLocaleSetKeywordMoveAssign);
     TESTCASE_AUTO_END;
 }
 
@@ -4021,28 +4019,4 @@ void LocaleTest::TestSetUnicodeKeywordValueNullInLongLocale() {
                   tag.data(), l.getName());
         }
     }
-}
-
-void LocaleTest::TestLongLocaleSetKeywordAssign() {
-    IcuTestErrorCode status(*this, "TestLongLocaleSetKeywordAssign");
-    // A long base name, with an illegal keyword and copy constructor
-    icu::Locale l("de_AAAAAAA1_AAAAAAA2_AAAAAAA3_AAAAAAA4_AAAAAAA5_AAAAAAA6_"
-                  "AAAAAAA7_AAAAAAA8_AAAAAAA9_AAAAAA10_AAAAAA11_AAAAAA12_"
-                  "AAAAAA13_AAAAAA14_AAAAAA15_AAAAAA16_AAAAAA17_AAAAAA18");
-    Locale l2;
-    l.setUnicodeKeywordValue("co", "12", status); // Cause an error
-    status.reset();
-    l2 = l; // copy operator on such bogus locale.
-}
-
-void LocaleTest::TestLongLocaleSetKeywordMoveAssign() {
-    IcuTestErrorCode status(*this, "TestLongLocaleSetKeywordMoveAssign");
-    // A long base name, with an illegal keyword and copy constructor
-    icu::Locale l("de_AAAAAAA1_AAAAAAA2_AAAAAAA3_AAAAAAA4_AAAAAAA5_AAAAAAA6_"
-                  "AAAAAAA7_AAAAAAA8_AAAAAAA9_AAAAAA10_AAAAAA11_AAAAAA12_"
-                  "AAAAAA13_AAAAAA14_AAAAAA15_AAAAAA16_AAAAAA17");
-    Locale l2;
-    l.setUnicodeKeywordValue("co", "12", status); // Cause an error
-    status.reset();
-    Locale l3 = std::move(l); // move assign
 }

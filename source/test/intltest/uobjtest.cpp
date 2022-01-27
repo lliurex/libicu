@@ -610,7 +610,7 @@ void UObjectTest::runIndexedTest( int32_t index, UBool exec, const char* &name, 
 {
     switch (index) {
 
-    // TESTCASE(0, testIDs);
+    TESTCASE(0, testIDs);
     TESTCASE(1, testUMemory);
     TESTCASE(2, TestMFCCompatibility);
     TESTCASE(3, TestCompilerRTTI);

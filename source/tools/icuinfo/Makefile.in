@@ -16,15 +16,8 @@ include $(top_builddir)/icudefs.mk
 ## Build directory information
 subdir = tools/icuinfo
 
-TARGET_STUB_NAME = icuinfo
-
-SECTION = 1
-
-MAN_FILES = $(TARGET_STUB_NAME).$(SECTION)
-
-
 ## Extra files to remove for 'make clean'
-CLEANFILES = *~ $(DEPS) $(PLUGIN_OBJECTS) $(PLUGINFILE) $(PLUGIN) $(MAN_FILES)
+CLEANFILES = *~ $(DEPS) $(PLUGIN_OBJECTS) $(PLUGINFILE) $(PLUGIN)
 
 ## Target information
 TARGET = icuinfo$(EXEEXT)
@@ -44,8 +37,7 @@ ICUINFO_OPTS=-i ../../data/out/build/$(ICUDATA_PLATFORM_NAME) -x $(top_builddir)
 
 ## List of phony targets
 .PHONY : all all-local install install-local clean clean-local		\
-distclean distclean-local dist dist-local check check-local plugin-check \
-install-man
+distclean distclean-local dist dist-local check check-local plugin-check
 
 ## Clear suffix list
 .SUFFIXES :
@@ -58,15 +50,11 @@ distclean : distclean-local
 dist: dist-local
 check: all check-local
 
-all-local: $(TARGET) $(MAN_FILES)
+all-local: $(TARGET) 
 
-install-local: all-local install-man
+install-local: all-local
 	$(MKINSTALLDIRS) $(DESTDIR)$(bindir)
 	$(INSTALL) $(TARGET) $(DESTDIR)$(bindir)
-
-install-man: $(MAN_FILES)
-	$(MKINSTALLDIRS) $(DESTDIR)$(mandir)/man$(SECTION)
-	$(INSTALL_DATA) $? $(DESTDIR)$(mandir)/man$(SECTION)
 
 dist-local:
 
@@ -116,10 +104,6 @@ else
 plugin plugin-check $(PLUGIN):
 	@echo "Plugins are disabled (use --enable-plugins to enable)"
 endif
-
-%.$(SECTION): $(srcdir)/%.$(SECTION).in
-	cd $(top_builddir) \
-	  && CONFIG_FILES=$(subdir)/$@ CONFIG_HEADERS= $(SHELL) ./config.status
 
 ifeq (,$(MAKECMDGOALS))
 -include $(DEPS)
