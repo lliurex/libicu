@@ -1,0 +1,36 @@
+[Ubuntu note: Backport of the following patch from upstream, considering only
+the test TestCanonicalID in source/test/intltest/tztest.cpp that has
+dependency with tzdata installed in the system and is needed to solve failed
+test case
+-- Rodrigo Figueiredo Zaiden]
+
+From 25eb1510ec4e536fe0d0d1024b3ce71819510d0a Mon Sep 17 00:00:00 2001
+From: yumaoka <y.umaoka@gmail.com>
+Date: Wed, 6 Jan 2021 20:52:35 +0000
+Subject: [PATCH] ICU-21448 Update ICU tzdata to 2020f
+
+---
+ source/data/misc/metaZones.txt          |  16 +--
+ source/data/misc/windowsZones.txt       |  11 +-
+ source/data/misc/zoneinfo64.txt         | 100 ++++++++----------
+ source/i18n/smpdtfmt.cpp                |  75 ++++++-------
+ source/test/intltest/tzfmttst.cpp       |  54 ++++++++++
+ source/test/intltest/tzfmttst.h         |   1 +
+ source/test/intltest/tztest.cpp         |   2 +
+ .../com/ibm/icu/text/SimpleDateFormat.java    |  73 +++++++------
+ icu4j/main/shared/data/icutzdata.jar          |   4 +-
+ .../dev/test/format/TimeZoneFormatTest.java   |  48 ++++++++-
+ .../icu/dev/test/timezone/TimeZoneTest.java   |   2 +
+ 11 files changed, 236 insertions(+), 150 deletions(-)
+
+--- icu-66.1.orig/source/test/intltest/tztest.cpp
++++ icu-66.1/source/test/intltest/tztest.cpp
+@@ -2074,6 +2074,8 @@ void TimeZoneTest::TestCanonicalID() {
+         {"Asia/Vientiane", "Asia/Bangkok"},
+         {"Atlantic/Jan_Mayen", "Europe/Oslo"},
+         {"Atlantic/St_Helena", "Africa/Abidjan"},
++        {"Australia/Currie", "Australia/Hobart"},
++        {"Australia/Tasmania", "Australia/Hobart"},
+         {"Europe/Bratislava", "Europe/Prague"},
+         {"Europe/Busingen", "Europe/Zurich"},
+         {"Europe/Guernsey", "Europe/London"},

@@ -1,0 +1,60 @@
+Description: Partially skip two failed Time Zone tests
+ Due to tzdata dependency, Time Zone specific test cases might fail when
+ building ICU in a system with updated tzdata package.
+Author: Rodrigo Figueiredo Zaiden <rodrigo.zaiden@canonical.com>
+Bug-Ubuntu: https://bugs.launchpad.net/ubuntu/+source/icu/+bug/1951432
+Forwarded: no
+Reviewed-by: Steve Beattie <steve.beattie@canonical.com>
+Last-Update: 2021-11-18
+---
+This patch header follows DEP-3: http://dep.debian.net/deps/dep3/
+--- icu-66.1.orig/source/test/intltest/tztest.cpp
++++ icu-66.1/source/test/intltest/tztest.cpp
+@@ -1221,7 +1221,10 @@ TimeZoneTest::TestAliasedNames()
+         {"America/Argentina/Cordoba", "America/Cordoba"},
+         {"America/Argentina/Jujuy", "America/Jujuy"},
+         {"America/Argentina/Mendoza", "America/Mendoza"},
+-        {"America/Atikokan", "America/Coral_Harbour"},
++        // Skipping these IDs due to failures
++        // in TestAliasedNames caused by tzdata version
++        // mismatch with the test data
++        //{"America/Atikokan", "America/Coral_Harbour"},
+         {"America/Atka", "America/Adak"},
+         {"America/Ensenada", "America/Tijuana"},
+         {"America/Fort_Wayne", "America/Indianapolis"},
+@@ -2116,6 +2119,16 @@ void TimeZoneTest::TestCanonicalID() {
+         "Etc/Zulu", "Zulu", 0
+     };
+ 
++    // Manually skipping these IDs due to failures
++    // in TestCanonicalID caused by tzdata version
++    // mismatch with the test data
++    static const char* excluded3[] = {
++        "America/Cayman",
++        "America/Coral_Harbour",
++        "America/Panama",
++        0
++    };
++
+     // Walk through equivalency groups
+     UErrorCode ec = U_ZERO_ERROR;
+     int32_t s_length, i, j, k;
+@@ -2128,6 +2141,18 @@ void TimeZoneTest::TestCanonicalID() {
+     s_length = s->count(ec);
+     for (i = 0; i < s_length;++i) {
+         const UnicodeString *tzid = s->snext(ec);
++
++        UBool isSkip = FALSE;
++        for (j = 0; excluded3[j] != 0; j++) {
++            if (*tzid == UnicodeString(excluded3[j])) {
++                isSkip = TRUE;
++                break;
++            }
++        }
++        if (isSkip) {
++            continue;
++        }
++
+         int32_t nEquiv = TimeZone::countEquivalentIDs(*tzid);
+         if (nEquiv == 0) {
+             continue;

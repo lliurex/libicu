@@ -1,0 +1,71 @@
+[Ubuntu note: Backport of the following patch from upstream, considering only
+the tests: TestCalendar in source/test/cintltst/ccaltst.c and TestGenericAPI
+in source/test/intltest/tztest.cpp. Both have dependency with tzdata
+installed in the system and are needed to solve failed test cases
+-- Rodrigo Figueiredo Zaiden]
+
+From 7561cb28577cf49c199449c7196f55fc3c96b3aa Mon Sep 17 00:00:00 2001
+From: yumaoka <y.umaoka@gmail.com>
+Date: Tue, 28 Sep 2021 16:17:51 +0000
+Subject: [PATCH] ICU-21767 Merging tz2021b changes.
+
+Update ICU (main branch and upcoming version 70) halfway to 2021b.
+
+- with Samoa & Jordan rule updates
+- with corrected pre-1993 transitions in Malawi (?), Portugal, etc.
+- without for now (due to release timing) renaming Pacific/Enderbury to Pacific/Kanton
+- without merging many zones whose timestamps agree since 1970
+---
+ icu4c/source/data/misc/zoneinfo64.txt         | 72 +++++++++----------
+ icu4c/source/test/cintltst/ccaltst.c          | 10 ++-
+ icu4c/source/test/intltest/tztest.cpp         |  9 ++-
+ icu4j/main/shared/data/icutzdata.jar          |  4 +-
+ .../icu/dev/test/timezone/TimeZoneTest.java   |  6 +-
+ 5 files changed, 50 insertions(+), 51 deletions(-)
+
+--- icu-66.1.orig/source/test/cintltst/ccaltst.c
++++ icu-66.1/source/test/cintltst/ccaltst.c
+@@ -117,6 +117,7 @@ static void TestCalendar()
+     char tempMsgBuf2[256];  // u_austrcpy() of some formatted dates & times.
+     UChar zone1[64], zone2[64];
+     const char *tzver = 0;
++    int32_t tzverLen = 0;
+     UChar canonicalID[64];
+     UBool isSystemID = FALSE;
+     const UCalGetTypeTest * ucalGetTypeTestPtr;
+@@ -271,10 +272,13 @@ static void TestCalendar()
+     tzver = ucal_getTZDataVersion(&status);
+     if (U_FAILURE(status)) {
+         log_err_status(status, "FAIL: ucal_getTZDataVersion() => %s\n", u_errorName(status));
+-    } else if (uprv_strlen(tzver) != 5 /*4 digits + 1 letter*/) {
+-        log_err("FAIL: Bad version string was returned by ucal_getTZDataVersion\n");
+     } else {
+-        log_verbose("PASS: ucal_getTZDataVersion returned %s\n", tzver);
++        tzverLen = uprv_strlen(tzver);
++        if (tzverLen == 5 || tzverLen == 6 /* 4 digits + 1 or 2 letters */) {
++            log_verbose("PASS: ucal_getTZDataVersion returned %s\n", tzver);
++        } else {
++            log_err("FAIL: Bad version string was returned by ucal_getTZDataVersion\n");
++        }
+     }
+     
+     /*Testing ucal_getCanonicalTimeZoneID*/
+--- icu-66.1.orig/source/test/intltest/tztest.cpp
++++ icu-66.1/source/test/intltest/tztest.cpp
+@@ -152,10 +152,13 @@ TimeZoneTest::TestGenericAPI()
+     const char* tzver = TimeZone::getTZDataVersion(status);
+     if (U_FAILURE(status)) {
+         errcheckln(status, "FAIL: getTZDataVersion failed - %s", u_errorName(status));
+-    } else if (uprv_strlen(tzver) != 5 /* 4 digits + 1 letter */) {
+-        errln((UnicodeString)"FAIL: getTZDataVersion returned " + tzver);
+     } else {
+-        logln((UnicodeString)"tzdata version: " + tzver);
++        int32_t tzverLen = uprv_strlen(tzver);
++        if (tzverLen == 5 || tzverLen == 6 /* 4 digits + 1 or 2 letters */) {
++            logln((UnicodeString)"tzdata version: " + tzver);
++        } else {
++            errln((UnicodeString)"FAIL: getTZDataVersion returned " + tzver);
++        }
+     }
+ }
+ 
