@@ -1,4 +1,4 @@
-icu (66.1-2ubuntu2.1) bionic-updates; urgency=medium
+icu (66.1.0-0+lliurex) bionic; urgency=medium
 
   * Bionic backport
 
